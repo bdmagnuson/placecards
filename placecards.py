@@ -7,31 +7,32 @@ import sys
 header ='''
 \\documentclass{letter}
 
-\\usepackage[left=0in, right=0in, top=5.5in, bottom=0in]{geometry}
+\\usepackage[total={11in,11in}, left=0in, right=0in, top=6in, bottom=0.5in]{geometry}
 \\usepackage{anyfontsize}
 \\usepackage{xcolor}
 \\usepackage[T1]{fontenc}
 \\usepackage{bookman}
 
 \\begin{document}
+\\pagenumbering{gobble}
 '''
 
 body = '''
 \\vspace*{\\fill}
 \\center{
 \\makebox[0in][c]{
-   \\makebox[6in]{
+   \\makebox[8.25in]{
       \\fontencoding{T1}
       \\fontfamily{pbk}
-      \\fontsize{80pt}{0pt}\selectfont
+      \\fontsize{130pt}{0pt}\selectfont
       \\color[RGB]{$color}
       {$table}}}
 \\makebox[0in][c]{
-   \\raisebox{18pt}{
+   \\raisebox{27pt}{
       \\fontencoding{T1}
       \\fontfamily{pzc}
-      \\fontsize{40pt}{0pt}\selectfont
-      $name}}
+      \\fontsize{70pt}{0pt}\selectfont
+      \\textbf{$name}}}
 \\vspace*{\\fill}
 \\newpage
 '''
@@ -41,6 +42,7 @@ footer = '''
 '''
 
 tables = [
+    'ZERO',
     'ONE',
     'TWO',
     'THREE',
@@ -61,6 +63,12 @@ for i in range(len(tables)):
 infile = sys.argv[1];
 outfile = sys.argv[2];
 
+table_count = [0] * 13;
+meat = 0;
+veggie = 0;
+chicken = 0;
+other = 0;
+
 with open(infile) as f:
     fh = open(outfile, 'w');
     fh.write(str(Template(header)));
@@ -71,18 +79,31 @@ with open(infile) as f:
         else:
             name = m.group(1);
             meal = m.group(2);
-            table = m.group(3);
+            table = int(m.group(3));
+            table_count[table] += 1
             if meal is 'M':
                 color = '213,163,245'
+                meat += 1;
             if meal is 'C':
-                color = '249,214,112'
+                color = '245, 204, 146'
+                chicken += 1;
             if meal is 'V':
-                color = '118,156,141'
+                color = '99,226,74'
+                veggie += 1;
             if meal is 'S':
-                color = '158,119,27'
+                color = '249,247,133'
+                other += 1
             fh.write(str(Template(body, searchList = [{'color' : color,
                                                        'name' : name,
-                                                       'table' : tables[int(table) - 1]}])))
+                                                       'table' : tables[table]}])))
 
 fh.write(str(Template(footer)))
 fh.close()
+
+for t in range(len(table_count)):
+    print 'Table' + str(t) + ':' +  str(table_count[t])
+
+print 'Chicken: ' + str(chicken);
+print 'Beef: ' + str(meat);
+print 'Veggie: ' + str(veggie);
+print 'other: ' + str(other)
